@@ -14,7 +14,6 @@
       overflow: hidden;
     }
 
-    /* Sidebar */
     .sidebar {
       position: fixed;
       top: 0;
@@ -41,12 +40,11 @@
       opacity: 0.8;
     }
 
-    /* Chatbot Popup */
     .chatbot {
       position: absolute;
       width: 350px;
       height: 500px;
-      display: none; /* Initially hidden */
+      display: none; 
       flex-direction: column;
       background-color: #ffffff;
       border-radius: 15px;
@@ -62,7 +60,7 @@
       font-size: 20px;
       font-weight: bold;
       color: #fff;
-      cursor: move; /* Indicates draggable header */
+      cursor: move; 
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -152,7 +150,6 @@
     <button class="nav-btn" id="chatbot-toggle">💬</button>
   </div>
 
-  <!-- Chatbot Popup -->
   <div class="chatbot" id="chatbot">
     <div class="chatbot-header" id="chatbot-header">
       <h2>FHDW Chatbot</h2>
@@ -178,7 +175,7 @@
   <input placeholder="Hier suchen" id="searchWidgetTrigger" style="display: none;" />
 
   <script>
-    // Chatbot toggle functionality
+
     const chatbot = document.getElementById('chatbot');
     const chatbotToggle = document.getElementById('chatbot-toggle');
     const closeChatbot = document.getElementById('close-chatbot');
@@ -191,7 +188,7 @@
 
     chatbotToggle.addEventListener('click', () => {
       chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
-      chatbot.style.top = '20%'; // Default position
+      chatbot.style.top = '20%'; 
       chatbot.style.left = '70%';
     });
 
@@ -218,7 +215,6 @@
       }
     }
 
-    // Chat functionality
     sendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
@@ -229,29 +225,25 @@
     function sendMessage() {
       const userMessage = chatInput.value.trim();
       if (userMessage) {
-        // Add user message to the chat
         const userMsgDiv = document.createElement('div');
         userMsgDiv.className = 'message user';
         userMsgDiv.textContent = userMessage;
         chatbotBody.appendChild(userMsgDiv);
 
-        // Simulate bot response
+
         const botResponse = generateBotResponse(userMessage);
         const botMsgDiv = document.createElement('div');
         botMsgDiv.className = 'message bot';
         botMsgDiv.textContent = botResponse;
         chatbotBody.appendChild(botMsgDiv);
 
-        // Scroll to the bottom of the chat
         chatbotBody.scrollTop = chatbotBody.scrollHeight;
 
-        // Clear input
         chatInput.value = '';
       }
     }
 
     function generateBotResponse(userMessage) {
-      // Simple simulated responses for demonstration
       if (userMessage.toLowerCase().includes('hallo')) {
         return 'Hallo! Wie kann ich helfen?';
       } else if (userMessage.toLowerCase().includes('danke')) {
