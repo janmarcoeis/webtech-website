@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popup Chatbot mit Such-Widget</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffc800, #f08e00);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 50px;
+      height: 100%;
+      background-color: #f08e00;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      margin: 10px 0;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .nav-btn:hover {
+      opacity: 0.8;
+    }
+
+    /* Chatbot Popup */
+    .chatbot {
+      position: absolute;
+      width: 350px;
+      height: 500px;
+      display: none; /* Initially hidden */
+      flex-direction: column;
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      resize: both;
+    }
+
+    .chatbot-header {
+      background-color: #ffc800;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+      cursor: move; /* Indicates draggable header */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chatbot-header h2 {
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .chatbot-body {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      background-color: #ffc800;
+      color: #fff;
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    .message.bot {
+      background-color: #f08e00;
+      color: #fff;
+      align-self: flex-start;
+      text-align: left;
+    }
+
+    .chatbot-footer {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background-color: #ffc800;
+    }
+
+    .chatbot-footer input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 25px;
+      margin-right: 10px;
+    }
+
+    .chatbot-footer button {
+      background-color: #f08e00;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .chatbot-footer input:focus, .chatbot-footer button:hover {
+      outline: none;
+      opacity: 0.9;
+    }
+  </style>
+  <!-- Google Search Widget Script -->
+  <script src="https://cloud.google.com/ai/gen-app-builder/client?hl=de"></script>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <button class="nav-btn">🏠</button>
+    <button class="nav-btn">📄</button>
+    <button class="nav-btn" id="chatbot-toggle">💬</button>
+  </div>
+
+  <!-- Chatbot Popup -->
+  <div class="chatbot" id="chatbot">
+    <div class="chatbot-header" id="chatbot-header">
+      <h2>FHDW Chatbot</h2>
+      <button class="close-btn" id="close-chatbot">✖</button>
+    </div>
+    <div class="chatbot-body" id="chatbot-body">
+      <div>
+        <!-- Google Search Widget -->
+        <gen-search-widget
+          configId="10b9cd76-09eb-44f6-a72f-f95300d35851"
+          location="eu"
+          triggerId="searchWidgetTrigger">
+        </gen-search-widget>
+      </div>
+    </div>
+    <div class="chatbot-footer">
+      <input type="text" id="chat-input" placeholder="Deine Nachricht..." />
+      <button id="send-btn">Senden</button>
+    </div>
+  </div>
+
+  <!-- Search Trigger Input -->
+  <input placeholder="Hier suchen" id="searchWidgetTrigger" style="display: none;" />
+
+  <script>
+    // Chatbot toggle functionality
+    const chatbot = document.getElementById('chatbot');
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const closeChatbot = document.getElementById('close-chatbot');
+    const chatbotHeader = document.getElementById('chatbot-header');
+    const chatbotBody = document.getElementById('chatbot-body');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    chatbotToggle.addEventListener('click', () => {
+      chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+      chatbot.style.top = '20%'; // Default position
+      chatbot.style.left = '70%';
+    });
+
+    closeChatbot.addEventListener('click', () => {
+      chatbot.style.display = 'none';
+    });
+
+    chatbotHeader.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.clientX - chatbot.offsetLeft;
+      offsetY = e.clientY - chatbot.offsetTop;
+      document.addEventListener('mousemove', moveChatbot);
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      document.removeEventListener('mousemove', moveChatbot);
+    });
+
+    function moveChatbot(e) {
+      if (isDragging) {
+        chatbot.style.left = `${e.clientX - offsetX}px`;
+        chatbot.style.top = `${e.clientY - offsetY}px`;
+      }
+    }
+
+    // Chat functionality
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    function sendMessage() {
+      const userMessage = chatInput.value.trim();
+      if (userMessage) {
+        // Add user message to the chat
+        const userMsgDiv = document.createElement('div');
+        userMsgDiv.className = 'message user';
+        userMsgDiv.textContent = userMessage;
+        chatbotBody.appendChild(userMsgDiv);
+
+        // Simulate bot response
+        const botResponse = generateBotResponse(userMessage);
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'message bot';
+        botMsgDiv.textContent = botResponse;
+        chatbotBody.appendChild(botMsgDiv);
+
+        // Scroll to the bottom of the chat
+        chatbotBody.scrollTop = chatbotBody.scrollHeight;
+
+        // Clear input
+        chatInput.value = '';
+      }
+    }
+
+    function generateBotResponse(userMessage) {
+      // Simple simulated responses for demonstration
+      if (userMessage.toLowerCase().includes('hallo')) {
+        return 'Hallo! Wie kann ich helfen?';
+      } else if (userMessage.toLowerCase().includes('danke')) {
+        return 'Gern geschehen!';
+      } else {
+        return 'Entschuldigung, das habe ich nicht verstanden.';
+      }
+    }
+
+    // Set up the Google Search Widget
+    const searchWidget = document.querySelector('gen-search-widget');
+    searchWidget.authToken = "<JWT or OAuth token provided by your backend>"; // Set your token here
+  </script>
+</body>
+</html>
