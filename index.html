@@ -24,14 +24,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px 0;
+      justify-content: center; 
     }
 
     .nav-btn {
       background: none;
       border: none;
       font-size: 24px;
-      margin: 10px 0;
+      margin: 20px 0; 
       cursor: pointer;
       color: #fff;
     }
@@ -51,26 +51,28 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       overflow: hidden;
       resize: both;
+      min-width: 350px;
+      min-height: 300px;
     }
 
     .chatbot-header {
       background-color: #ffc800;
       padding: 15px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      color: #fff;
-      cursor: move; 
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      position: relative; 
     }
 
     .chatbot-header h2 {
       margin: 0;
+      flex-grow: 1;
+      text-align: center; 
     }
 
     .close-btn {
+      position: absolute;
+      right: 15px; 
       background: none;
       border: none;
       font-size: 16px;
@@ -143,13 +145,13 @@
   <script src="https://cloud.google.com/ai/gen-app-builder/client?hl=de"></script>
 </head>
 <body>
-  <!-- Sidebar -->
   <div class="sidebar">
     <button class="nav-btn">🏠</button>
     <button class="nav-btn">📄</button>
     <button class="nav-btn" id="chatbot-toggle">💬</button>
   </div>
 
+  <!-- Chatbot Popup -->
   <div class="chatbot" id="chatbot">
     <div class="chatbot-header" id="chatbot-header">
       <h2>FHDW Chatbot</h2>
@@ -171,11 +173,9 @@
     </div>
   </div>
 
-  <!-- Search Trigger Input -->
   <input placeholder="Hier suchen" id="searchWidgetTrigger" style="display: none;" />
 
   <script>
-
     const chatbot = document.getElementById('chatbot');
     const chatbotToggle = document.getElementById('chatbot-toggle');
     const closeChatbot = document.getElementById('close-chatbot');
@@ -230,20 +230,18 @@
         userMsgDiv.textContent = userMessage;
         chatbotBody.appendChild(userMsgDiv);
 
-
         const botResponse = generateBotResponse(userMessage);
         const botMsgDiv = document.createElement('div');
         botMsgDiv.className = 'message bot';
         botMsgDiv.textContent = botResponse;
         chatbotBody.appendChild(botMsgDiv);
-
         chatbotBody.scrollTop = chatbotBody.scrollHeight;
-
         chatInput.value = '';
       }
     }
 
     function generateBotResponse(userMessage) {
+      // Simple simulated responses for demonstration
       if (userMessage.toLowerCase().includes('hallo')) {
         return 'Hallo! Wie kann ich helfen?';
       } else if (userMessage.toLowerCase().includes('danke')) {
@@ -253,9 +251,6 @@
       }
     }
 
-    //Test
-    //const searchWidget = document.querySelector('gen-search-widget');
-    //searchWidget.authToken = "<JWT or OAuth token provided by your backend>"; // Set your token here
   </script>
 </body>
 </html>
